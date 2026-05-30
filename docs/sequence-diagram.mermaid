@@ -1,0 +1,60 @@
+sequenceDiagram
+    participant U as 用户
+    participant FE as 前台index.html
+    participant API as server.js
+    participant DB as SQLite
+
+    Note over U,DB: 流程1 - 前台加载资讯列表
+    U->>FE: 点击"最新资讯"Tab
+    FE->>API: GET /api/news?page=1&limit=10
+    API->>DB: SELECT * FROM news ORDER BY is_pinned DESC, published_at DESC LIMIT 10
+    DB-->>API: 返回news列表
+    API-->>FE: {news: [...], total, page, limit}
+    FE->>FE: 渲染资讯卡片列表（置顶标记📌）
+    FE-->>U: 显示资讯列表
+
+    U->>FE: 点击资讯标题
+    FE->>API: GET /api/news/:id
+    API->>DB: SELECT * FROM news WHERE id = ?
+    DB-->>API: 返回资讯详情
+    API-->>FE: {news: {...}}
+    FE->>FE: 打开资讯详情弹窗
+    FE-->>U: 显示完整正文
+
+    Note over U,DB: 流程2 - 后台管理资讯CRUD
+    participant A as 管理员
+    participant ADM as 后台admin.html
+
+    A->>ADM: 点击"资讯管理"
+    ADM->>API: GET /api/news (Bearer token)
+    API->>API: authMiddleware验证token
+    API->>DB: SELECT * FROM news ORDER BY is_pinned DESC, published_at DESC
+    DB-->>API: 返回列表
+    API-->>ADM: {news: [...]}
+    ADM-->>A: 显示资讯表格
+
+    A->>ADM: 点击"新建资讯"
+    ADM->>ADM: 打开资讯Modal
+    A->>ADM: 填写标题/摘要/正文/是否置顶
+    A->>ADM: 点击保存
+    ADM->>API: POST /api/news (Bearer token)
+    API->>DB: INSERT INTO news (title, summary, content, is_pinned) VALUES (...)
+    DB-->>API: lastInsertRowid
+    API->>DB: SELECT * FROM news WHERE id = ?
+    API-->>ADM: {message, news}
+    ADM-->>A: 显示"创建成功"Toast
+
+    Note over U,DB: 流程3 - 前台就医导航城市筛选
+    FE->>API: GET /api/cities
+    API->>DB: SELECT DISTINCT city FROM doctors ORDER BY city
+    DB-->>API: ["北京","上海",...]
+    API-->>FE: {cities: [...]}
+    FE->>FE: 动态生成城市筛选按钮
+
+    U->>FE: 点击"北京"城市按钮 + 勾选"专病门诊"
+    FE->>API: GET /api/doctors/public?city=北京&is_specialty_clinic=1
+    API->>DB: SELECT * FROM doctors WHERE city='北京' AND is_specialty_clinic=1
+    DB-->>API: 返回筛选结果
+    API-->>FE: {doctors: [...]}
+    FE->>FE: 渲染医生卡片（含出诊时间、预约方式）
+    FE-->>U: 显示筛选后的医生列表

@@ -1,6 +1,6 @@
 /**
  * server.js - Express 服务器入口
- * 白塞病联盟官网后台管理系统
+ * 白塞联盟官网后台管理系统
  */
 
 const express = require('express');
@@ -177,6 +177,34 @@ app.delete('/api/articles/:id', authMiddleware, (req, res) => {
 // 医生列表 CRUD
 // ============================================================
 
+/** GET /api/doctors/public - 公开获取医生列表（支持城市和专病门诊筛选） */
+app.get('/api/doctors/public', (req, res) => {
+  const { city, is_specialty_clinic } = req.query;
+
+  let sql = 'SELECT * FROM doctors WHERE 1=1';
+  const params = [];
+
+  if (city && city !== 'all') {
+    sql += ' AND city = ?';
+    params.push(city);
+  }
+  if (is_specialty_clinic !== undefined && is_specialty_clinic !== '') {
+    sql += ' AND is_specialty_clinic = ?';
+    params.push(is_specialty_clinic ? 1 : 0);
+  }
+
+  sql += ' ORDER BY is_specialty_clinic DESC, city, created_at DESC';
+
+  const doctors = db.prepare(sql).all(...params);
+  res.json({ doctors });
+});
+
+/** GET /api/cities - 公开获取有医生的城市列表 */
+app.get('/api/cities', (req, res) => {
+  const cities = db.prepare("SELECT DISTINCT city FROM doctors WHERE city != '' ORDER BY city").all();
+  res.json({ cities: cities.map(c => c.city) });
+});
+
 /** GET /api/doctors - 获取医生列表（支持城市筛选） */
 app.get('/api/doctors', authMiddleware, (req, res) => {
   const { city } = req.query;
@@ -204,15 +232,15 @@ app.get('/api/doctors/:id', authMiddleware, (req, res) => {
 
 /** POST /api/doctors - 添加医生 */
 app.post('/api/doctors', authMiddleware, (req, res) => {
-  const { city, hospital, department, name_zh, name_en, specialty_zh, specialty_en } = req.body;
+  const { city, hospital, department, name_zh, name_en, title, specialty_zh, specialty_en, schedule, appointment_info, is_specialty_clinic } = req.body;
 
   if (!city || !hospital || !name_zh) {
     return res.status(400).json({ error: '城市、医院和中文名称为必填项' });
   }
 
   const result = db.prepare(
-    `INSERT INTO doctors (city, hospital, department, name_zh, name_en, specialty_zh, specialty_en) VALUES (?, ?, ?, ?, ?, ?, ?)`
-  ).run(city, hospital, department || '', name_zh, name_en || '', specialty_zh || '', specialty_en || '');
+    `INSERT INTO doctors (city, hospital, department, name_zh, name_en, title, specialty_zh, specialty_en, schedule, appointment_info, is_specialty_clinic) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  ).run(city, hospital, department || '', name_zh, name_en || '', title || '', specialty_zh || '', specialty_en || '', schedule || '', appointment_info || '', is_specialty_clinic ? 1 : 0);
 
   const doctor = db.prepare('SELECT * FROM doctors WHERE id = ?').get(result.lastInsertRowid);
   res.status(201).json({ message: '医生添加成功', doctor });
@@ -225,18 +253,22 @@ app.put('/api/doctors/:id', authMiddleware, (req, res) => {
     return res.status(404).json({ error: '医生不存在' });
   }
 
-  const { city, hospital, department, name_zh, name_en, specialty_zh, specialty_en } = req.body;
+  const { city, hospital, department, name_zh, name_en, title, specialty_zh, specialty_en, schedule, appointment_info, is_specialty_clinic } = req.body;
 
   db.prepare(
-    `UPDATE doctors SET city = ?, hospital = ?, department = ?, name_zh = ?, name_en = ?, specialty_zh = ?, specialty_en = ? WHERE id = ?`
+    `UPDATE doctors SET city = ?, hospital = ?, department = ?, name_zh = ?, name_en = ?, title = ?, specialty_zh = ?, specialty_en = ?, schedule = ?, appointment_info = ?, is_specialty_clinic = ? WHERE id = ?`
   ).run(
     city || existing.city,
     hospital || existing.hospital,
     department !== undefined ? department : existing.department,
     name_zh !== undefined ? name_zh : existing.name_zh,
     name_en !== undefined ? name_en : existing.name_en,
+    title !== undefined ? title : existing.title,
     specialty_zh !== undefined ? specialty_zh : existing.specialty_zh,
     specialty_en !== undefined ? specialty_en : existing.specialty_en,
+    schedule !== undefined ? schedule : existing.schedule,
+    appointment_info !== undefined ? appointment_info : existing.appointment_info,
+    is_specialty_clinic !== undefined ? (is_specialty_clinic ? 1 : 0) : existing.is_specialty_clinic,
     req.params.id
   );
 
@@ -342,6 +374,76 @@ app.delete('/api/stories/:id', authMiddleware, (req, res) => {
 });
 
 // ============================================================
+// 资讯 CRUD
+// ============================================================
+
+/** GET /api/news - 公开获取资讯列表 */
+app.get('/api/news', (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const offset = (page - 1) * limit;
+
+  const total = db.prepare('SELECT COUNT(*) AS cnt FROM news').get().cnt;
+  const news = db.prepare(
+    'SELECT * FROM news ORDER BY is_pinned DESC, published_at DESC LIMIT ? OFFSET ?'
+  ).all(limit, offset);
+
+  res.json({ news, total, page, limit });
+});
+
+/** GET /api/news/:id - 公开获取资讯详情 */
+app.get('/api/news/:id', (req, res) => {
+  const news = db.prepare('SELECT * FROM news WHERE id = ?').get(req.params.id);
+  if (!news) {
+    return res.status(404).json({ error: '资讯不存在' });
+  }
+  res.json({ news });
+});
+
+/** POST /api/news - 创建资讯（需认证） */
+app.post('/api/news', authMiddleware, (req, res) => {
+  const { title, summary, content, is_pinned } = req.body;
+  if (!title) {
+    return res.status(400).json({ error: '标题为必填项' });
+  }
+  const result = db.prepare(
+    'INSERT INTO news (title, summary, content, is_pinned) VALUES (?, ?, ?, ?)'
+  ).run(title, summary || '', content || '', is_pinned ? 1 : 0);
+  const item = db.prepare('SELECT * FROM news WHERE id = ?').get(result.lastInsertRowid);
+  res.status(201).json({ message: '资讯创建成功', news: item });
+});
+
+/** PUT /api/news/:id - 更新资讯（需认证） */
+app.put('/api/news/:id', authMiddleware, (req, res) => {
+  const existing = db.prepare('SELECT * FROM news WHERE id = ?').get(req.params.id);
+  if (!existing) {
+    return res.status(404).json({ error: '资讯不存在' });
+  }
+  const { title, summary, content, is_pinned } = req.body;
+  db.prepare(
+    `UPDATE news SET title = ?, summary = ?, content = ?, is_pinned = ?, updated_at = datetime('now', 'localtime') WHERE id = ?`
+  ).run(
+    title !== undefined ? title : existing.title,
+    summary !== undefined ? summary : existing.summary,
+    content !== undefined ? content : existing.content,
+    is_pinned !== undefined ? (is_pinned ? 1 : 0) : existing.is_pinned,
+    req.params.id
+  );
+  const item = db.prepare('SELECT * FROM news WHERE id = ?').get(req.params.id);
+  res.json({ message: '资讯更新成功', news: item });
+});
+
+/** DELETE /api/news/:id - 删除资讯（需认证） */
+app.delete('/api/news/:id', authMiddleware, (req, res) => {
+  const existing = db.prepare('SELECT * FROM news WHERE id = ?').get(req.params.id);
+  if (!existing) {
+    return res.status(404).json({ error: '资讯不存在' });
+  }
+  db.prepare('DELETE FROM news WHERE id = ?').run(req.params.id);
+  res.json({ message: '资讯删除成功' });
+});
+
+// ============================================================
 // 网站设置
 // ============================================================
 
@@ -387,6 +489,7 @@ app.get('/api/dashboard', authMiddleware, (req, res) => {
   const articleCount = db.prepare('SELECT COUNT(*) AS cnt FROM articles').get().cnt;
   const doctorCount = db.prepare('SELECT COUNT(*) AS cnt FROM doctors').get().cnt;
   const storyCount = db.prepare('SELECT COUNT(*) AS cnt FROM stories').get().cnt;
+  const newsCount = db.prepare('SELECT COUNT(*) AS cnt FROM news').get().cnt;
 
   // 最近更新的内容（跨表取最近5条）
   const recentArticles = db.prepare(
@@ -395,8 +498,11 @@ app.get('/api/dashboard', authMiddleware, (req, res) => {
   const recentStories = db.prepare(
     `SELECT id, 'story' AS type, title_zh AS title, updated_at FROM stories ORDER BY updated_at DESC LIMIT 5`
   ).all();
+  const recentNews = db.prepare(
+    `SELECT id, 'news' AS type, title AS title, updated_at FROM news ORDER BY updated_at DESC LIMIT 5`
+  ).all();
 
-  const recentUpdates = [...recentArticles, ...recentStories]
+  const recentUpdates = [...recentArticles, ...recentStories, ...recentNews]
     .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
     .slice(0, 5);
 
@@ -404,7 +510,8 @@ app.get('/api/dashboard', authMiddleware, (req, res) => {
     stats: {
       articles: articleCount,
       doctors: doctorCount,
-      stories: storyCount
+      stories: storyCount,
+      news: newsCount
     },
     recentUpdates
   });
@@ -423,7 +530,7 @@ app.use((err, req, res, next) => {
 // ============================================================
 app.listen(PORT, () => {
   console.log('='.repeat(50));
-  console.log('  白塞病联盟后台管理系统已启动');
+  console.log('  白塞联盟后台管理系统已启动');
   console.log('='.repeat(50));
   console.log(`  前台网站: http://localhost:${PORT}`);
   console.log(`  后台管理: http://localhost:${PORT}/admin`);

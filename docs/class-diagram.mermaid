@@ -1,0 +1,90 @@
+classDiagram
+    class Database {
+        +db: Database
+        +createTables() void
+        +seedData() void
+        +migrateDoctorsTable() void
+    }
+
+    class News {
+        +id: int
+        +title: string
+        +summary: string
+        +content: string
+        +published_at: string
+        +is_pinned: int
+        +created_at: string
+        +updated_at: string
+    }
+
+    class Doctor {
+        +id: int
+        +city: string
+        +hospital: string
+        +department: string
+        +name_zh: string
+        +name_en: string
+        +specialty_zh: string
+        +specialty_en: string
+        +title: string
+        +schedule: string
+        +appointment_info: string
+        +is_specialty_clinic: int
+        +created_at: string
+    }
+
+    class Article {
+        +id: int
+        +category: string
+        +title_zh: string
+        +title_en: string
+        +content_zh: string
+        +content_en: string
+        +created_at: string
+        +updated_at: string
+    }
+
+    class Story {
+        +id: int
+        +title_zh: string
+        +title_en: string
+        +summary_zh: string
+        +summary_en: string
+        +content_zh: string
+        +content_en: string
+        +author: string
+        +location: string
+        +published: int
+        +created_at: string
+        +updated_at: string
+    }
+
+    class Server {
+        +app: Express
+        +PORT: int
+        +authMiddleware() middleware
+        +getNewsList() handler
+        +getNewsDetail() handler
+        +createNews() handler
+        +updateNews() handler
+        +deleteNews() handler
+        +getPublicDoctors() handler
+        +getCities() handler
+        +getDashboard() handler
+    }
+
+    class Auth {
+        +JWT_SECRET: string
+        +TOKEN_EXPIRES_IN: string
+        +signToken(payload) string
+        +authMiddleware(req, res, next) void
+    }
+
+    Database "1" --> "0..*" News : stores
+    Database "1" --> "0..*" Doctor : stores
+    Database "1" --> "0..*" Article : stores
+    Database "1" --> "0..*" Story : stores
+    Server --> Database : requires
+    Server --> Auth : uses
+    Server ..> News : CRUD
+    Server ..> Doctor : CRUD + public query

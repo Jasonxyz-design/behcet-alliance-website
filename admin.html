@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>白塞病联盟 · 后台管理</title>
+  <title>白塞联盟 · 后台管理</title>
   <style>
     /* ============================================================
        CSS Variables & Reset
@@ -221,7 +221,7 @@
   <div class="login-card">
     <div class="login-logo">
       <div class="login-logo-icon">B</div>
-      <div class="login-logo-text">白塞病联盟</div>
+      <div class="login-logo-text">白塞联盟</div>
     </div>
     <div class="login-title">后台管理系统</div>
     <div class="login-error" id="loginError"></div>
@@ -245,7 +245,7 @@
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <div class="sidebar-logo-icon">B</div>
-      <div class="sidebar-logo-text">白塞病联盟<small>Administration Panel</small></div>
+      <div class="sidebar-logo-text">白塞联盟<small>Administration Panel</small></div>
     </div>
     <nav class="sidebar-nav">
       <button class="sidebar-nav-item active" data-page="dashboard">
@@ -259,6 +259,9 @@
       </button>
       <button class="sidebar-nav-item" data-page="stories">
         <span class="icon">💬</span>故事管理
+      </button>
+      <button class="sidebar-nav-item" data-page="news">
+        <span class="icon">📰</span>资讯管理
       </button>
       <button class="sidebar-nav-item" data-page="settings">
         <span class="icon">⚙️</span>网站设置
@@ -301,6 +304,10 @@
             <div class="stat-icon stories">💬</div>
             <div class="stat-info"><h3 id="statStories">0</h3><p>病友故事</p></div>
           </div>
+          <div class="stat-card">
+            <div class="stat-icon" style="background:#fff5f5;color:#e53e3e">📰</div>
+            <div class="stat-info"><h3 id="statNews">0</h3><p>资讯</p></div>
+          </div>
         </div>
         <div class="recent-section">
           <h3>最近更新</h3>
@@ -340,10 +347,6 @@
           <div class="filter-bar">
             <select class="filter-select" id="doctorCityFilter">
               <option value="all">全部城市</option>
-              <option value="北京">北京</option>
-              <option value="上海">上海</option>
-              <option value="广州">广州</option>
-              <option value="成都">成都</option>
             </select>
             <button class="btn btn-primary btn-sm" onclick="openDoctorModal()">+ 添加医生</button>
           </div>
@@ -351,7 +354,7 @@
         <div style="overflow-x:auto">
           <table class="data-table">
             <thead>
-              <tr><th>ID</th><th>城市</th><th>医院</th><th>科室</th><th>姓名</th><th>专长</th><th>操作</th></tr>
+              <tr><th>ID</th><th>城市</th><th>医院</th><th>科室</th><th>姓名</th><th>专长</th><th>职称</th><th>专病门诊</th><th>操作</th></tr>
             </thead>
             <tbody id="doctorsTableBody"></tbody>
           </table>
@@ -372,6 +375,24 @@
               <tr><th>ID</th><th>中文标题</th><th>作者</th><th>地区</th><th>状态</th><th>更新时间</th><th>操作</th></tr>
             </thead>
             <tbody id="storiesTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- News -->
+      <div class="page-section" id="page-news">
+        <div class="section-header">
+          <h2>资讯管理</h2>
+          <div class="filter-bar">
+            <button class="btn btn-primary btn-sm" onclick="openNewsModal()">+ 新增资讯</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="data-table">
+            <thead>
+              <tr><th>ID</th><th>标题</th><th>摘要</th><th>置顶</th><th>发布时间</th><th>操作</th></tr>
+            </thead>
+            <tbody id="newsTableBody"></tbody>
           </table>
         </div>
       </div>
@@ -512,6 +533,28 @@
         <label>专长（英文）</label>
         <input type="text" class="form-input" id="doctorSpecEn" placeholder="Specialty in English" />
       </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>职称</label>
+          <input type="text" class="form-input" id="doctorTitle" placeholder="如：主任医师、副主任医师" />
+        </div>
+        <div class="form-group">
+          <label>出诊时间</label>
+          <input type="text" class="form-input" id="doctorSchedule" placeholder="如：周二下午/周四上午" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>预约方式</label>
+          <input type="text" class="form-input" id="doctorAppointmentInfo" placeholder="如：医院官方App预约" />
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;padding-bottom:8px">
+          <label style="display:flex;align-items:center;gap:10px;margin:0;cursor:pointer">
+            <input type="checkbox" id="doctorIsSpecialtyClinic" style="width:18px;height:18px;cursor:pointer" />
+            <span>专病门诊</span>
+          </label>
+        </div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeDoctorModal()">取消</button>
@@ -581,6 +624,45 @@
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeStoryModal()">取消</button>
       <button class="btn btn-primary" onclick="saveStory()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     News Modal
+============================================================ -->
+<div class="modal-overlay" id="newsModal">
+  <div class="modal" style="width:720px">
+    <div class="modal-header">
+      <h3 id="newsModalTitle">新增资讯</h3>
+      <button class="modal-close" onclick="closeNewsModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="newsEditId" />
+      <div class="form-group">
+        <label>标题 <span style="color:red">*</span></label>
+        <input type="text" class="form-input" id="newsTitle" placeholder="请输入资讯标题" />
+      </div>
+      <div class="form-group">
+        <label>摘要</label>
+        <textarea class="form-input" id="newsSummary" rows="3" placeholder="资讯摘要"></textarea>
+      </div>
+      <div class="form-group">
+        <label>内容</label>
+        <textarea class="form-input" id="newsContent" rows="8" placeholder="资讯完整内容"></textarea>
+      </div>
+      <div class="form-group" style="display:flex;align-items:center;gap:12px">
+        <label style="margin:0">置顶</label>
+        <label class="switch">
+          <input type="checkbox" id="newsIsPinned" />
+          <span class="switch-slider"></span>
+        </label>
+        <span id="newsPinnedLabel" style="font-size:0.85rem;color:var(--color-text-light)">未置顶</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeNewsModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveNews()">保存</button>
     </div>
   </div>
 </div>
@@ -761,6 +843,7 @@ const pageTitles = {
   articles: '知识库管理',
   doctors: '医生管理',
   stories: '故事管理',
+  news: '资讯管理',
   settings: '网站设置'
 };
 
@@ -784,8 +867,9 @@ function switchPage(page) {
   // Load data
   if (page === 'dashboard') loadDashboard();
   else if (page === 'articles') loadArticles();
-  else if (page === 'doctors') loadDoctors();
+  else if (page === 'doctors') { loadDoctorCities(); loadDoctors(); }
   else if (page === 'stories') loadStories();
+  else if (page === 'news') loadNews();
   else if (page === 'settings') loadSettings();
 }
 
@@ -808,6 +892,7 @@ async function loadDashboard() {
     document.getElementById('statArticles').textContent = data.stats.articles;
     document.getElementById('statDoctors').textContent = data.stats.doctors;
     document.getElementById('statStories').textContent = data.stats.stories;
+    document.getElementById('statNews').textContent = data.stats.news || 0;
 
     const listEl = document.getElementById('recentList');
     if (data.recentUpdates.length === 0) {
@@ -938,11 +1023,14 @@ async function loadDoctors() {
     var tbody = document.getElementById('doctorsTableBody');
 
     if (data.doctors.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="empty-state">暂无医生数据</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="empty-state">暂无医生数据</td></tr>';
       return;
     }
 
     tbody.innerHTML = data.doctors.map(function(d) {
+      var specialtyBadge = d.is_specialty_clinic
+        ? '<span class="badge badge-success">是</span>'
+        : '<span class="badge badge-warning">否</span>';
       return '<tr>' +
         '<td>' + d.id + '</td>' +
         '<td>' + esc(d.city) + '</td>' +
@@ -950,6 +1038,8 @@ async function loadDoctors() {
         '<td>' + esc(d.department) + '</td>' +
         '<td>' + esc(d.name_zh) + '</td>' +
         '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + esc(d.specialty_zh) + '">' + esc(d.specialty_zh) + '</td>' +
+        '<td>' + esc(d.title || '-') + '</td>' +
+        '<td>' + specialtyBadge + '</td>' +
         '<td class="td-actions">' +
         '<button class="btn btn-outline btn-sm" onclick="editDoctor(' + d.id + ')">编辑</button>' +
         '<button class="btn btn-danger btn-sm" onclick="deleteDoctor(' + d.id + ')">删除</button>' +
@@ -972,6 +1062,10 @@ function openDoctorModal(doctor) {
   document.getElementById('doctorNameEn').value = doctor ? doctor.name_en : '';
   document.getElementById('doctorSpecZh').value = doctor ? doctor.specialty_zh : '';
   document.getElementById('doctorSpecEn').value = doctor ? doctor.specialty_en : '';
+  document.getElementById('doctorTitle').value = doctor ? (doctor.title || '') : '';
+  document.getElementById('doctorSchedule').value = doctor ? (doctor.schedule || '') : '';
+  document.getElementById('doctorAppointmentInfo').value = doctor ? (doctor.appointment_info || '') : '';
+  document.getElementById('doctorIsSpecialtyClinic').checked = doctor ? !!doctor.is_specialty_clinic : false;
   document.getElementById('doctorModal').classList.add('show');
 }
 
@@ -997,7 +1091,11 @@ async function saveDoctor() {
     name_zh: document.getElementById('doctorNameZh').value.trim(),
     name_en: document.getElementById('doctorNameEn').value.trim(),
     specialty_zh: document.getElementById('doctorSpecZh').value.trim(),
-    specialty_en: document.getElementById('doctorSpecEn').value.trim()
+    specialty_en: document.getElementById('doctorSpecEn').value.trim(),
+    title: document.getElementById('doctorTitle').value.trim(),
+    schedule: document.getElementById('doctorSchedule').value.trim(),
+    appointment_info: document.getElementById('doctorAppointmentInfo').value.trim(),
+    is_specialty_clinic: document.getElementById('doctorIsSpecialtyClinic').checked
   };
 
   if (!body.city || !body.hospital || !body.name_zh) {
@@ -1149,6 +1247,132 @@ function deleteStory(id) {
 /* ============================================================
    Settings
 ============================================================ */
+
+/* Load doctor cities dynamically from API */
+async function loadDoctorCities() {
+  try {
+    var data = await api('GET', '/cities');
+    var selectEl = document.getElementById('doctorCityFilter');
+    if (!selectEl || !data.cities) return;
+    // Preserve current selection
+    var currentVal = selectEl.value;
+    var html = '<option value="all">全部城市</option>';
+    data.cities.forEach(function(city) {
+      html += '<option value="' + esc(city) + '">' + esc(city) + '</option>';
+    });
+    selectEl.innerHTML = html;
+    // Restore selection if still available
+    if (currentVal) {
+      selectEl.value = currentVal;
+    }
+  } catch (err) {
+    console.error('加载城市列表失败', err);
+  }
+}
+
+/* ============================================================
+   News CRUD
+============================================================ */
+async function loadNews() {
+  try {
+    var data = await api('GET', '/news?limit=50');
+    var tbody = document.getElementById('newsTableBody');
+
+    if (!data.news || data.news.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-state">暂无资讯</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = data.news.map(function(n) {
+      var pinnedBadge = n.is_pinned
+        ? '<span style="color:#e53e3e;font-weight:600">📌 置顶</span>'
+        : '-';
+      return '<tr>' +
+        '<td>' + n.id + '</td>' +
+        '<td>' + esc(n.title) + '</td>' +
+        '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + esc(n.summary) + '">' + esc(n.summary || '-') + '</td>' +
+        '<td>' + pinnedBadge + '</td>' +
+        '<td>' + formatTime(n.published_at || n.created_at) + '</td>' +
+        '<td class="td-actions">' +
+        '<button class="btn btn-outline btn-sm" onclick="editNews(' + n.id + ')">编辑</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="deleteNews(' + n.id + ')">删除</button>' +
+        '</td></tr>';
+    }).join('');
+  } catch (err) {
+    showToast('加载资讯失败: ' + err.message, 'error');
+  }
+}
+
+function openNewsModal(news) {
+  document.getElementById('newsEditId').value = news ? news.id : '';
+  document.getElementById('newsModalTitle').textContent = news ? '编辑资讯' : '新增资讯';
+  document.getElementById('newsTitle').value = news ? news.title : '';
+  document.getElementById('newsSummary').value = news ? (news.summary || '') : '';
+  document.getElementById('newsContent').value = news ? (news.content || '') : '';
+  document.getElementById('newsIsPinned').checked = news ? !!news.is_pinned : false;
+  updateNewsPinnedLabel();
+  document.getElementById('newsModal').classList.add('show');
+}
+
+function closeNewsModal() {
+  document.getElementById('newsModal').classList.remove('show');
+}
+
+document.getElementById('newsIsPinned').addEventListener('change', updateNewsPinnedLabel);
+
+function updateNewsPinnedLabel() {
+  var checked = document.getElementById('newsIsPinned').checked;
+  document.getElementById('newsPinnedLabel').textContent = checked ? '已置顶' : '未置顶';
+}
+
+async function editNews(id) {
+  try {
+    var data = await api('GET', '/news/' + id);
+    openNewsModal(data.news);
+  } catch (err) {
+    showToast('加载资讯详情失败: ' + err.message, 'error');
+  }
+}
+
+async function saveNews() {
+  var id = document.getElementById('newsEditId').value;
+  var body = {
+    title: document.getElementById('newsTitle').value.trim(),
+    summary: document.getElementById('newsSummary').value.trim(),
+    content: document.getElementById('newsContent').value.trim(),
+    is_pinned: document.getElementById('newsIsPinned').checked
+  };
+
+  if (!body.title) {
+    showToast('标题不能为空', 'error');
+    return;
+  }
+
+  try {
+    if (id) {
+      await api('PUT', '/news/' + id, body);
+      showToast('资讯更新成功', 'success');
+    } else {
+      await api('POST', '/news', body);
+      showToast('资讯创建成功', 'success');
+    }
+    closeNewsModal();
+    loadNews();
+  } catch (err) {
+    showToast('保存失败: ' + err.message, 'error');
+  }
+}
+
+function deleteNews(id) {
+  showConfirm('确定要删除这条资讯吗？此操作不可撤销。', function() {
+    api('DELETE', '/news/' + id).then(function() {
+      showToast('资讯删除成功', 'success');
+      loadNews();
+    }).catch(function(err) {
+      showToast('删除失败: ' + err.message, 'error');
+    });
+  });
+}
 async function loadSettings() {
   try {
     var data = await api('GET', '/settings');

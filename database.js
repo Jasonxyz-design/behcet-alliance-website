@@ -82,6 +82,20 @@ function createTables() {
     )
   `);
 
+  // 资讯表
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS news (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL DEFAULT '',
+      summary TEXT NOT NULL DEFAULT '',
+      content TEXT NOT NULL DEFAULT '',
+      published_at TEXT DEFAULT (datetime('now', 'localtime')),
+      is_pinned INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT DEFAULT (datetime('now', 'localtime')),
+      updated_at TEXT DEFAULT (datetime('now', 'localtime'))
+    )
+  `);
+
   // 网站设置表（单行配置）
   db.exec(`
     CREATE TABLE IF NOT EXISTS settings (
@@ -94,6 +108,23 @@ function createTables() {
       wechat_group_qr_url TEXT NOT NULL DEFAULT ''
     )
   `);
+
+  // doctors表新增字段迁移
+  const doctorColumns = db.prepare("PRAGMA table_info(doctors)").all();
+  const existingCols = doctorColumns.map(c => c.name);
+
+  if (!existingCols.includes('title')) {
+    db.exec("ALTER TABLE doctors ADD COLUMN title TEXT NOT NULL DEFAULT ''");
+  }
+  if (!existingCols.includes('schedule')) {
+    db.exec("ALTER TABLE doctors ADD COLUMN schedule TEXT NOT NULL DEFAULT ''");
+  }
+  if (!existingCols.includes('appointment_info')) {
+    db.exec("ALTER TABLE doctors ADD COLUMN appointment_info TEXT NOT NULL DEFAULT ''");
+  }
+  if (!existingCols.includes('is_specialty_clinic')) {
+    db.exec("ALTER TABLE doctors ADD COLUMN is_specialty_clinic INTEGER NOT NULL DEFAULT 0");
+  }
 }
 
 /**
@@ -154,26 +185,73 @@ function seedData() {
   const doctorCount = db.prepare('SELECT COUNT(*) AS cnt FROM doctors').get().cnt;
   if (doctorCount === 0) {
     const insertDoctor = db.prepare(
-      `INSERT INTO doctors (city, hospital, department, name_zh, name_en, specialty_zh, specialty_en) VALUES (?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO doctors (city, hospital, department, name_zh, name_en, title, specialty_zh, specialty_en, schedule, appointment_info, is_specialty_clinic) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     );
 
     const doctors = [
-      { city: '北京', hospital: '北京协和医院', department: '风湿免疫科', name_zh: '张风湿 教授', name_en: 'Prof. Zhang Rheumatology', specialty_zh: '风湿免疫疾病、白塞病、系统性血管炎', specialty_en: 'Rheumatic diseases, Behcet\'s Disease, Systemic vasculitis' },
-      { city: '北京', hospital: '北京大学人民医院', department: '风湿免疫科', name_zh: '李风湿 副教授', name_en: 'Assoc. Prof. Li Rheumatology', specialty_zh: '系统性自身免疫病、白塞病', specialty_en: 'Systemic autoimmune diseases, Behcet\'s Disease' },
-      { city: '北京', hospital: '北京同仁医院', department: '眼科', name_zh: '王眼科 教授', name_en: 'Prof. Wang Ophthalmology', specialty_zh: '葡萄膜炎、眼部白塞病、眼底病', specialty_en: 'Uveitis, Ocular Behcet\'s Disease, Fundus diseases' },
-      { city: '上海', hospital: '上海瑞金医院', department: '风湿免疫科', name_zh: '陈风湿 教授', name_en: 'Prof. Chen Rheumatology', specialty_zh: '白塞病、类风湿关节炎、系统性疾病', specialty_en: 'Behcet\'s Disease, Rheumatoid arthritis, Systemic diseases' },
-      { city: '上海', hospital: '复旦大学附属华山医院', department: '神经科', name_zh: '刘神经 教授', name_en: 'Prof. Liu Neurology', specialty_zh: '神经白塞病、中枢神经系统血管炎', specialty_en: 'Neuro-Behcet\'s Disease, CNS vasculitis' },
-      { city: '广州', hospital: '中山大学附属第一医院', department: '风湿免疫科', name_zh: '吴风湿 教授', name_en: 'Prof. Wu Rheumatology', specialty_zh: '白塞病、脊柱关节炎、系统性血管炎', specialty_en: 'Behcet\'s Disease, Spondyloarthritis, Systemic vasculitis' },
-      { city: '成都', hospital: '四川大学华西医院', department: '风湿免疫科', name_zh: '赵风湿 教授', name_en: 'Prof. Zhao Rheumatology', specialty_zh: '白塞病、系统性自身免疫性疾病', specialty_en: 'Behcet\'s Disease, Systemic autoimmune diseases' },
+      { city: '上海', hospital: '上海华东医院', department: '风湿免疫科', name_zh: '管剑龙 教授', name_en: '', title: '教授', specialty_zh: '白塞病专病门诊', specialty_en: '', schedule: '周二下午/周四上午', appointment_info: '医院官方App预约', is_specialty_clinic: 1 },
+      { city: '上海', hospital: '上海仁济医院', department: '风湿科', name_zh: '仁济风湿科专病门诊', name_en: '', title: '', specialty_zh: '白塞病专病门诊', specialty_en: '', schedule: '每周二上午', appointment_info: '医院官方App预约', is_specialty_clinic: 1 },
+      { city: '北京', hospital: '北京协和医院', department: '免疫内科', name_zh: '郑文洁教授&刘金晶大夫', name_en: '', title: '教授', specialty_zh: '白塞病专病门诊', specialty_en: '', schedule: '每周三上午', appointment_info: '北京协和App/114预约', is_specialty_clinic: 1 },
+      { city: '北京', hospital: '北京大学第一医院', department: '风湿免疫科', name_zh: '张卓莉 教授', name_en: '', title: '教授', specialty_zh: '白塞病专病门诊', specialty_en: '', schedule: '每周四上午', appointment_info: '医院官方App预约', is_specialty_clinic: 1 },
+      { city: '北京', hospital: '北京中医医院', department: '干部保健科', name_zh: '张海滨 主任', name_en: '', title: '主任医师', specialty_zh: '白塞病专病门诊', specialty_en: '', schedule: '每周三上午', appointment_info: '医院官方App预约', is_specialty_clinic: 1 },
+      { city: '北京', hospital: '北京朝阳医院', department: '眼科', name_zh: '陶勇 教授', name_en: '', title: '教授', specialty_zh: '白塞病眼部专病门诊', specialty_en: '', schedule: '每周一下午', appointment_info: '医院官方App/114预约', is_specialty_clinic: 1 },
+      { city: '上海', hospital: '上海仁济医院', department: '眼科', name_zh: '闫焱 医生', name_en: '', title: '', specialty_zh: '白塞病眼部专病门诊', specialty_en: '', schedule: '', appointment_info: '医院官方App预约', is_specialty_clinic: 1 },
+      { city: '上海', hospital: '上海市中医医院', department: '风湿免疫科', name_zh: '陈薇薇 副主任', name_en: '', title: '副主任医师', specialty_zh: '白塞病专病门诊', specialty_en: '', schedule: '周五上午', appointment_info: '医院官方App预约', is_specialty_clinic: 1 },
+      { city: '北京', hospital: '北京西苑中医院', department: '风湿免疫科', name_zh: '周彩云 教授', name_en: '', title: '教授', specialty_zh: '白塞病专病门诊', specialty_en: '', schedule: '周五上午', appointment_info: '医院官方App预约', is_specialty_clinic: 1 },
+      { city: '北京', hospital: '北京大学人民医院', department: '风湿免疫科', name_zh: '穆荣 教授', name_en: '', title: '教授', specialty_zh: '白塞病专病门诊', specialty_en: '', schedule: '周三全天', appointment_info: '医院官方App/114预约', is_specialty_clinic: 1 },
+      { city: '北京', hospital: '北京大学人民医院', department: '风湿免疫科', name_zh: '刘田 副主任', name_en: '', title: '副主任医师', specialty_zh: '白塞病专病门诊', specialty_en: '', schedule: '每周五下午', appointment_info: '医院官方App/114预约', is_specialty_clinic: 1 },
+      { city: '成都', hospital: '四川华西医院', department: '风湿免疫科', name_zh: '刘毅 教授', name_en: '', title: '教授', specialty_zh: '白塞病专病门诊', specialty_en: '', schedule: '周一下午/周二上午(特需)/周三上午', appointment_info: '华医通App预约', is_specialty_clinic: 1 },
+      { city: '北京', hospital: '北京协和医院', department: '眼科', name_zh: '赵潺 博士', name_en: '', title: '博士', specialty_zh: '白塞病眼部专病门诊', specialty_en: '', schedule: '', appointment_info: '北京协和App/114预约', is_specialty_clinic: 1 },
+      { city: '北京', hospital: '北京安贞医院', department: '心脏大血管外科', name_zh: '郑军 教授团队', name_en: '', title: '教授', specialty_zh: '白塞病合并心脏大血管MDT门诊', specialty_en: '', schedule: '周二下午', appointment_info: '医院官方App预约', is_specialty_clinic: 1 },
     ];
 
     const insertMany = db.transaction((docs) => {
       for (const doc of docs) {
-        insertDoctor.run(doc.city, doc.hospital, doc.department, doc.name_zh, doc.name_en, doc.specialty_zh, doc.specialty_en);
+        insertDoctor.run(doc.city, doc.hospital, doc.department, doc.name_zh, doc.name_en, doc.title, doc.specialty_zh, doc.specialty_en, doc.schedule, doc.appointment_info, doc.is_specialty_clinic);
       }
     });
     insertMany(doctors);
-    console.log('[DB] 已插入 7 位医生种子数据');
+    console.log('[DB] 已插入 14 位专病门诊医生种子数据');
+  }
+
+  // 资讯种子
+  const newsCount = db.prepare('SELECT COUNT(*) AS cnt FROM news').get().cnt;
+  if (newsCount === 0) {
+    const insertNews = db.prepare(
+      `INSERT INTO news (title, summary, content, is_pinned, published_at) VALUES (?, ?, ?, ?, ?)`
+    );
+
+    const newsItems = [
+      {
+        title: '5.20国际白塞病关爱日科普活动圆满举办',
+        summary: '2025年5月20日，白塞联盟举办线上科普活动，邀请多位专家为患者答疑解惑，活动反响热烈。',
+        content: '<p>2025年5月20日是国际白塞病关爱日，白塞联盟联合多位风湿免疫科、眼科专家，在线上举办了主题为"携手同行，共克白塞"的科普活动。</p><p>活动中，专家们就白塞病的最新诊疗进展、日常管理要点、用药注意事项等话题进行了深入浅出的讲解，并现场回答了患者提出的各类问题。</p><p>本次活动共有超过500名患者及家属参与，获得了广泛好评。联盟将继续举办此类公益活动，为白塞病患者提供更多有价值的信息与支持。</p>',
+        is_pinned: 1,
+        published_at: '2025-05-20 10:00:00'
+      },
+      {
+        title: '白塞联盟2025年度患者调研报告发布',
+        summary: '白塞联盟发布2025年度患者调研报告，涵盖了患者就医体验、生活质量、信息需求等多维度数据。',
+        content: '<p>白塞联盟于2025年初启动了全国范围内的患者调研项目，共收到有效问卷800余份。</p><p>调研结果显示，患者平均确诊时间仍然较长，从首次出现症状到最终确诊平均需要3.2年。其中，误诊率最高的科室依次为口腔科、皮肤科和眼科。</p><p>报告还揭示了患者在用药依从性、心理支持、社会融入等方面的需求，为联盟未来的工作方向提供了重要参考。</p>',
+        is_pinned: 0,
+        published_at: '2025-04-15 09:00:00'
+      },
+      {
+        title: '新版白塞病诊疗指南解读',
+        summary: '中华医学会风湿病学分会发布新版白塞病诊疗指南，联盟组织专家进行深度解读。',
+        content: '<p>中华医学会风湿病学分会近期发布了更新版白塞病诊疗指南，新增了生物制剂使用建议、眼部病变评估标准等重要内容。</p><p>白塞联盟第一时间组织专家团队对新指南进行了详细解读，提炼出与患者最相关的核心要点，以通俗易懂的方式呈现给大家。</p><p>主要更新内容包括：TNF-α抑制剂的使用时机调整、葡萄膜炎分级治疗流程优化、以及妊娠期用药安全建议等。</p>',
+        is_pinned: 0,
+        published_at: '2025-03-28 14:00:00'
+      }
+    ];
+
+    const insertManyNews = db.transaction((items) => {
+      for (const n of items) {
+        insertNews.run(n.title, n.summary, n.content, n.is_pinned, n.published_at);
+      }
+    });
+    insertManyNews(newsItems);
+    console.log('[DB] 已插入 3 条资讯种子数据');
   }
 
   // 病友故事种子
@@ -209,9 +287,9 @@ function seedData() {
       {
         title_zh: '联盟让我不再孤单',
         title_en: 'The Alliance Made Me No Longer Alone',
-        summary_zh: '患病的最初两年，我一直以为只有自己是这样，网上搜到的信息残缺不全，家人也不理解。加入白塞病联盟后，遇见了许多同路人，大家互相分享经验、加油打气，那种不孤单的感觉真的很治愈。',
+        summary_zh: '患病的最初两年，我一直以为只有自己是这样，网上搜到的信息残缺不全，家人也不理解。加入白塞联盟后，遇见了许多同路人，大家互相分享经验、加油打气，那种不孤单的感觉真的很治愈。',
         summary_en: 'During the first two years of illness, I thought I was the only one. The information online was incomplete, and my family didn\'t understand. After joining the Behcet\'s Alliance, I met many fellow travelers who shared experiences and encouraged each other. That feeling of not being alone was truly healing.',
-        content_zh: '患病的最初两年，我一直以为只有自己是这样，网上搜到的信息残缺不全，家人也不理解。加入白塞病联盟后，遇见了许多同路人，大家互相分享经验、加油打气，那种不孤单的感觉真的很治愈。\n\n在联盟里，有人分享就医经验，推荐靠谱的医生；有人分享用药心得，提醒注意事项；还有人只是安静地听你倾诉，给你一个温暖的拥抱。这些看似微小的善意，对一个孤独的病患来说，意义非凡。\n\n如果你正在独自面对白塞病，我想对你说：不要一个人扛，加入我们，你不需要独自面对这一切。',
+        content_zh: '患病的最初两年，我一直以为只有自己是这样，网上搜到的信息残缺不全，家人也不理解。加入白塞联盟后，遇见了许多同路人，大家互相分享经验、加油打气，那种不孤单的感觉真的很治愈。\n\n在联盟里，有人分享就医经验，推荐靠谱的医生；有人分享用药心得，提醒注意事项；还有人只是安静地听你倾诉，给你一个温暖的拥抱。这些看似微小的善意，对一个孤独的病患来说，意义非凡。\n\n如果你正在独自面对白塞病，我想对你说：不要一个人扛，加入我们，你不需要独自面对这一切。',
         content_en: 'During the first two years of illness, I thought I was the only one. The information online was incomplete, and my family didn\'t understand. After joining the Behcet\'s Alliance, I met many fellow travelers who shared experiences and encouraged each other. That feeling of not being alone was truly healing.\n\nIn the alliance, some share medical experiences and recommend reliable doctors; others share medication tips and precautions; and some just quietly listen and give you a warm hug. These seemingly small acts of kindness mean the world to a lonely patient.\n\nIf you\'re facing Behcet\'s Disease alone, I want to tell you: don\'t carry it by yourself. Join us, you don\'t have to face this alone.',
         author: '患者大伟',
         location: '成都',
@@ -235,7 +313,7 @@ function seedData() {
       `INSERT INTO settings (id, site_name_zh, site_name_en, site_description_zh, site_description_en, contact_email, wechat_group_qr_url) VALUES (?, ?, ?, ?, ?, ?, ?)`
     ).run(
       1,
-      '白塞病联盟',
+      '白塞联盟',
       'Behcet\'s Alliance',
       '权威知识、就医导航、温暖社区',
       'Authoritative knowledge, medical guide, warm community',

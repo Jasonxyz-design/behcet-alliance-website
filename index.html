@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>白塞病联盟 | 权威知识·就医导航·温暖社区</title>
-  <meta name="description" content="白塞病联盟 - 权威知识、就医导航、温暖社区" />
+  <title>白塞联盟 | 权威知识·就医导航·温暖社区</title>
+  <meta name="description" content="白塞联盟 - 权威知识、就医导航、温暖社区" />
   <style>
     /* ============================================================
        CSS Variables & Reset
@@ -151,10 +151,9 @@
     .city-btn:hover{border-color:var(--color-secondary);color:var(--color-secondary)}
     .city-btn.active{background:var(--color-primary);border-color:var(--color-primary);color:#fff}
     .doctor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
-    .doctor-card{background:var(--color-card);border-radius:var(--radius-md);padding:24px;border:1px solid var(--color-border);box-shadow:var(--shadow-sm);transition:all var(--transition)}
+    .doctor-card{position:relative;background:var(--color-card);border-radius:var(--radius-md);padding:24px;border:1px solid var(--color-border);box-shadow:var(--shadow-sm);transition:all var(--transition)}
     .doctor-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px)}
-    .doctor-card[data-city]:not(.visible){display:none}
-    .doctor-card.visible{display:block}
+    .doctor-card.hidden{display:none}
     .doctor-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
     .doctor-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--color-secondary),#6dc5f0);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;flex-shrink:0}
     .doctor-info h4{font-size:1.05rem;font-weight:700;color:var(--color-primary);margin-bottom:4px}
@@ -317,7 +316,7 @@
     <div class="nav-logo" onclick="navigate('home')">
       <div class="nav-logo-icon">🎗</div>
       <div class="nav-logo-text">
-        <span class="nav-logo-cn" data-i18n="logoTitle">白塞病联盟</span>
+        <span class="nav-logo-cn" data-i18n="logoTitle">白塞联盟</span>
         <span class="nav-logo-en" data-i18n="logoSub">Behcet's Disease Alliance</span>
       </div>
     </div>
@@ -367,23 +366,23 @@
       <div class="hero-content">
         <div class="hero-badge">🎗 <span data-i18n="heroBadge">白塞病患者互助平台</span></div>
         <h1 class="hero-title" data-i18n-html="heroTitle">白塞病，不再<span>孤独前行</span></h1>
-        <p class="hero-desc" data-i18n="heroDesc">我们是一群学生与患者共同建立的互助联盟，致力于为白塞病患者提供权威医学知识、精准就医指引与温暖社区支持，让每一位患者都能在正确的路上前行。</p>
+        <p class="hero-desc" data-i18n="heroDesc">白塞联盟是由白塞病患者及家属自发成立的互助组织，致力于为白塞病患者提供信息支持、就医指导与情感陪伴。我们相信，每一位患者都不应独自面对疾病的挑战。</p>
         <div class="hero-actions">
           <button class="btn btn-primary" onclick="navigate('knowledge')" data-i18n="heroBtn1">了解白塞病 →</button>
           <button class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,0.5);" onclick="navigate('community')" data-i18n="heroBtn2">加入社区</button>
         </div>
         <div class="hero-stats">
           <div class="hero-stat">
-            <div class="hero-stat-num">70+</div>
-            <div class="hero-stat-label" data-i18n="stat1">份问卷调研</div>
+            <div class="hero-stat-num">800+</div>
+            <div class="hero-stat-label" data-i18n="stat1">份患者调研</div>
           </div>
           <div class="hero-stat">
-            <div class="hero-stat-num">7+</div>
-            <div class="hero-stat-label" data-i18n="stat2">位专家医生</div>
+            <div class="hero-stat-num">14+</div>
+            <div class="hero-stat-label" data-i18n="stat2">位专病门诊</div>
           </div>
           <div class="hero-stat">
             <div class="hero-stat-num">∞</div>
-            <div class="hero-stat-label" data-i18n="stat3">病友故事陪伴</div>
+            <div class="hero-stat-label" data-i18n="stat3">病友互助陪伴</div>
           </div>
         </div>
       </div>
@@ -429,6 +428,7 @@
         <button class="ktab" onclick="switchKTab('medicine')" data-i18n="ktab2">常用药物</button>
         <button class="ktab" onclick="switchKTab('diagnosis')" data-i18n="ktab3">诊断标准</button>
         <button class="ktab" onclick="switchKTab('prognosis')" data-i18n="ktab4">预后管理</button>
+        <button class="ktab" onclick="switchKTab('news')" data-i18n="ktab5">最新资讯</button>
       </div>
 
       <!-- 疾病百科 -->
@@ -554,6 +554,17 @@
           <div class="symptom-card"><div class="symptom-icon">🌿</div><h4 data-i18n="prog4t">生活方式管理</h4><p data-i18n="prog4d">戒烟戒酒、避免过度劳累、均衡饮食、适度运动、保持良好心态，积极参与病友支持群体。</p></div>
         </div>
       </div>
+
+      <!-- 最新资讯 -->
+      <div id="ktab-news" class="ktab-content">
+        <div class="knowledge-intro" style="background:linear-gradient(135deg,#e8f8f0,#f0fdf4);border-left-color:#2e7d32;">
+          <h3 data-i18n="news_title">最新资讯</h3>
+          <p data-i18n="news_intro">了解白塞病领域的最新动态、研究进展与联盟公告。</p>
+        </div>
+        <div id="news-content" style="margin-top:24px;">
+          <p style="text-align:center;color:#999;">加载中...</p>
+        </div>
+      </div>
     </div>
   </section>
 </div>
@@ -566,70 +577,11 @@
     <div class="container">
       <h2 class="section-title" data-i18n="navMedical">就医导航</h2>
       <p class="section-subtitle" data-i18n="medicalSubtitle">精选全国权威医院与专家，帮助您找到最合适的医疗资源</p>
-      <div class="city-filter">
-        <button class="city-btn active" onclick="filterCity('all')" data-i18n="cityAll">全部城市</button>
-        <button class="city-btn" onclick="filterCity('beijing')" data-i18n="cityBJ">北京</button>
-        <button class="city-btn" onclick="filterCity('shanghai')" data-i18n="citySH">上海</button>
-        <button class="city-btn" onclick="filterCity('guangzhou')" data-i18n="cityGZ">广州</button>
-        <button class="city-btn" onclick="filterCity('chengdu')" data-i18n="cityCD">成都</button>
+      <div class="city-filter" id="cityFilter">
+        <button class="city-btn active" onclick="filterDoctors('all', this)">全部城市</button>
       </div>
       <div class="doctor-grid" id="doctorGrid">
-        <div class="doctor-card visible" data-city="beijing">
-          <div class="doctor-header"><div class="doctor-avatar">👨‍⚕️</div><div class="doctor-info"><h4 data-i18n="dr1name">张风湿 教授</h4><div class="doctor-title" data-i18n="dr1dept">风湿免疫科</div></div></div>
-          <div class="doctor-detail">
-            <div class="doctor-detail-row"><span class="icon">🏥</span><span data-i18n="dr1hosp">北京协和医院</span></div>
-            <div class="doctor-detail-row"><span class="icon">📍</span><span data-i18n="cityBJ">北京</span></div>
-            <div class="doctor-detail-row"><span class="icon">🎓</span><span data-i18n="dr1spec">风湿免疫疾病、白塞病、系统性血管炎</span></div>
-          </div>
-        </div>
-        <div class="doctor-card visible" data-city="beijing">
-          <div class="doctor-header"><div class="doctor-avatar">👩‍⚕️</div><div class="doctor-info"><h4 data-i18n="dr2name">李风湿 副教授</h4><div class="doctor-title" data-i18n="dr2dept">风湿免疫科</div></div></div>
-          <div class="doctor-detail">
-            <div class="doctor-detail-row"><span class="icon">🏥</span><span data-i18n="dr2hosp">北京大学人民医院</span></div>
-            <div class="doctor-detail-row"><span class="icon">📍</span><span data-i18n="cityBJ">北京</span></div>
-            <div class="doctor-detail-row"><span class="icon">🎓</span><span data-i18n="dr2spec">系统性自身免疫病、白塞病</span></div>
-          </div>
-        </div>
-        <div class="doctor-card visible" data-city="beijing">
-          <div class="doctor-header"><div class="doctor-avatar">👨‍⚕️</div><div class="doctor-info"><h4 data-i18n="dr3name">王眼科 教授</h4><div class="doctor-title" data-i18n="dr3dept">眼科</div></div></div>
-          <div class="doctor-detail">
-            <div class="doctor-detail-row"><span class="icon">🏥</span><span data-i18n="dr3hosp">北京同仁医院</span></div>
-            <div class="doctor-detail-row"><span class="icon">📍</span><span data-i18n="cityBJ">北京</span></div>
-            <div class="doctor-detail-row"><span class="icon">🎓</span><span data-i18n="dr3spec">葡萄膜炎、眼部白塞病、眼底病</span></div>
-          </div>
-        </div>
-        <div class="doctor-card visible" data-city="shanghai">
-          <div class="doctor-header"><div class="doctor-avatar">👨‍⚕️</div><div class="doctor-info"><h4 data-i18n="dr4name">陈风湿 教授</h4><div class="doctor-title" data-i18n="dr4dept">风湿免疫科</div></div></div>
-          <div class="doctor-detail">
-            <div class="doctor-detail-row"><span class="icon">🏥</span><span data-i18n="dr4hosp">上海瑞金医院</span></div>
-            <div class="doctor-detail-row"><span class="icon">📍</span><span data-i18n="citySH">上海</span></div>
-            <div class="doctor-detail-row"><span class="icon">🎓</span><span data-i18n="dr4spec">白塞病、类风湿关节炎、系统性疾病</span></div>
-          </div>
-        </div>
-        <div class="doctor-card visible" data-city="shanghai">
-          <div class="doctor-header"><div class="doctor-avatar">👨‍⚕️</div><div class="doctor-info"><h4 data-i18n="dr5name">刘神经 教授</h4><div class="doctor-title" data-i18n="dr5dept">神经科</div></div></div>
-          <div class="doctor-detail">
-            <div class="doctor-detail-row"><span class="icon">🏥</span><span data-i18n="dr5hosp">复旦大学附属华山医院</span></div>
-            <div class="doctor-detail-row"><span class="icon">📍</span><span data-i18n="citySH">上海</span></div>
-            <div class="doctor-detail-row"><span class="icon">🎓</span><span data-i18n="dr5spec">神经白塞病、中枢神经系统血管炎</span></div>
-          </div>
-        </div>
-        <div class="doctor-card visible" data-city="guangzhou">
-          <div class="doctor-header"><div class="doctor-avatar">👩‍⚕️</div><div class="doctor-info"><h4 data-i18n="dr6name">吴风湿 教授</h4><div class="doctor-title" data-i18n="dr6dept">风湿免疫科</div></div></div>
-          <div class="doctor-detail">
-            <div class="doctor-detail-row"><span class="icon">🏥</span><span data-i18n="dr6hosp">中山大学附属第一医院</span></div>
-            <div class="doctor-detail-row"><span class="icon">📍</span><span data-i18n="cityGZ">广州</span></div>
-            <div class="doctor-detail-row"><span class="icon">🎓</span><span data-i18n="dr6spec">白塞病、脊柱关节炎、系统性血管炎</span></div>
-          </div>
-        </div>
-        <div class="doctor-card visible" data-city="chengdu">
-          <div class="doctor-header"><div class="doctor-avatar">👨‍⚕️</div><div class="doctor-info"><h4 data-i18n="dr7name">赵风湿 教授</h4><div class="doctor-title" data-i18n="dr7dept">风湿免疫科</div></div></div>
-          <div class="doctor-detail">
-            <div class="doctor-detail-row"><span class="icon">🏥</span><span data-i18n="dr7hosp">四川大学华西医院</span></div>
-            <div class="doctor-detail-row"><span class="icon">📍</span><span data-i18n="cityCD">成都</span></div>
-            <div class="doctor-detail-row"><span class="icon">🎓</span><span data-i18n="dr7spec">白塞病、系统性自身免疫性疾病</span></div>
-          </div>
-        </div>
+        <p style="text-align:center;color:#999;grid-column:1/-1;">加载中...</p>
       </div>
       <div class="tips-box">
         <h3>💡 <span data-i18n="tips_title">就诊贴士</span></h3>
@@ -682,21 +634,21 @@
             <h3 class="story-title" data-i18n="s3title">联盟让我不再孤单</h3>
             <div class="story-meta"><span>📍</span><span data-i18n="s3loc">成都 · 患者大伟</span><span style="margin-left:8px;">❤️</span><span data-i18n="s3time">加入联盟1年</span></div>
           </div>
-          <div class="story-excerpt" data-i18n="s3excerpt">患病的最初两年，我一直以为只有自己是这样，网上搜到的信息残缺不全，家人也不理解。加入白塞病联盟后，遇见了许多同路人，大家互相分享经验、加油打气，那种不孤单的感觉真的很治愈。</div>
+          <div class="story-excerpt" data-i18n="s3excerpt">患病的最初两年，我一直以为只有自己是这样，网上搜到的信息残缺不全，家人也不理解。加入白塞联盟后，遇见了许多同路人，大家互相分享经验、加油打气，那种不孤单的感觉真的很治愈。</div>
           <div class="story-footer"><button class="btn btn-outline" onclick="openStory(3)" data-i18n="readMore">阅读完整故事 →</button></div>
         </div>
       </div>
       <div class="wechat-section">
         <h2 data-i18n="wechat_title">加入病友微信群</h2>
-        <p data-i18n="wechat_desc">扫描下方二维码，加入白塞病联盟病友互助群。这里有同路人、有医学科普、有情感支持——你不是一个人在战斗。</p>
+        <p data-i18n="wechat_desc">扫描下方二维码，加入白塞联盟病友互助群。这里有同路人、有医学科普、有情感支持——你不是一个人在战斗。</p>
         <div class="wechat-qr-wrap">
           <div class="wechat-qr">
             <div class="wechat-qr-icon">📱</div>
             <div data-i18n-html="qr_placeholder">二维码占位图<br>（扫码加群）</div>
           </div>
-          <div style="font-size:0.88rem;color:var(--color-text);font-weight:600;" data-i18n="qr_label">白塞病联盟病友群</div>
-          <div class="wechat-contact">📧 <span data-i18n="contact_email">联系邮箱：behcet.alliance@example.com</span></div>
-          <div class="wechat-contact">💬 <span data-i18n="contact_wechat">微信公众号：白塞病联盟</span></div>
+          <div style="font-size:0.88rem;color:var(--color-text);font-weight:600;" data-i18n="qr_label">白塞联盟病友群</div>
+          <div class="wechat-contact">📧 <span data-i18n="contact_email">联系邮箱：contact@behcet.cn</span></div>
+          <div class="wechat-contact">💬 <span data-i18n="contact_wechat">微信公众号：白塞联盟</span></div>
         </div>
       </div>
     </div>
@@ -710,52 +662,46 @@
   <section class="section">
     <div class="container">
       <h2 class="section-title" data-i18n="navAbout">关于我们</h2>
-      <p class="section-subtitle" data-i18n="aboutSubtitle">由学生主导，为患者服务的公益性信息互助平台</p>
+      <p class="section-subtitle" data-i18n="aboutSubtitle">信息共享、互助关爱</p>
       <div class="about-grid">
         <div class="about-text">
-          <h3 data-i18n="about_bg_t">📋 项目背景</h3>
-          <p data-i18n="about_bg_d">白塞病是一种相对罕见却严重影响生活质量的自身免疫性疾病。然而，大多数患者在确诊前需要辗转多家医院，平均确诊时间长达数年。缺乏权威的中文科普资源、就医渠道不清晰、患者间缺少交流平台，是患者群体面临的主要困境。</p>
-          <p data-i18n="about_bg_d2">基于对70余位白塞病患者的深度问卷调研，我们发现以上问题普遍存在。为此，一支由在校大学生组成的团队发起了\“白塞病联盟\”项目，立志用力所能及的方式改善这一现状。</p>
-          <h3 data-i18n="about_mission_t">🎯 项目使命</h3>
-          <p data-i18n="about_mission_d">让每一位白塞病患者都能获得：</p>
+          <h3 data-i18n="about_intro_t">📋 关于白塞联盟</h3>
+          <p data-i18n="about_intro_d">白塞联盟（Behcet's Disease Alliance）是由白塞病患者及家属自发成立的互助组织。联盟以「信息共享、互助关爱」为宗旨，致力于搭建患者与医疗资源之间的桥梁。</p>
+          <h3 data-i18n="about_mission_t">🎯 我们的使命</h3>
           <ul>
-            <li data-i18n="mission1">准确、权威的疾病认知</li>
-            <li data-i18n="mission2">便捷的就医指引与专家资源</li>
-            <li data-i18n="mission3">温暖的病友社群支持</li>
-            <li data-i18n="mission4">持续更新的医学进展信息</li>
+            <li data-i18n="mission1">汇聚全国白塞病专病门诊信息，帮助患者找到对口的医疗资源</li>
+            <li data-i18n="mission2">传播科学、权威的白塞病知识，消除信息壁垒</li>
+            <li data-i18n="mission3">为患者及家属提供情感支持与交流平台</li>
           </ul>
-          <h3 data-i18n="about_team_t">👥 项目团队</h3>
-          <p data-i18n="about_team_d">我们是一支充满热情的在校学生团队，成员涵盖医学、设计、技术等多个专业，共同致力于推动白塞病患者信息获取的平等化与便利化。我们与白塞联盟合作，确保内容的专业性与准确性。</p>
-          <h3 data-i18n="about_support_t">🤝 支持机构</h3>
-          <p data-i18n="about_support_d">本项目受到白塞联盟的指导与支持。白塞联盟致力于推动国内白塞病患者群体的组织化支持与医患沟通，是本项目最重要的合作伙伴。</p>
+          <h3 data-i18n="about_what_t">🛠 我们做什么</h3>
+          <ul>
+            <li data-i18n="what1">患者信息调研与报告发布</li>
+            <li data-i18n="what2">专病门诊信息整理与持续更新</li>
+            <li data-i18n="what3">科普内容制作与传播</li>
+            <li data-i18n="what4">患者互助社区运营</li>
+          </ul>
           <h3 data-i18n="about_disclaimer_t">⚠️ 免责声明</h3>
           <p data-i18n="about_disclaimer_d">本网站所有内容仅供参考，不构成医疗建议。白塞病的诊断与治疗应在专业医生的指导下进行。如有任何医疗疑问，请及时就诊。</p>
         </div>
         <div class="about-sidebar">
           <div class="about-info-card">
-            <h4>📊 <span data-i18n="about_stat_t">项目数据</span></h4>
+            <h4>📊 <span data-i18n="about_stat_t">联盟数据</span></h4>
             <div class="about-stat-list">
-              <div class="about-stat-item"><div class="about-stat-num">70+</div><div class="about-stat-desc" data-i18n="about_s1">份深度问卷调研</div></div>
-              <div class="about-stat-item"><div class="about-stat-num">7+</div><div class="about-stat-desc" data-i18n="about_s2">位专家医生收录</div></div>
-              <div class="about-stat-item"><div class="about-stat-num">3</div><div class="about-stat-desc" data-i18n="about_s3">个核心功能模块</div></div>
-              <div class="about-stat-item"><div class="about-stat-num">2</div><div class="about-stat-desc" data-i18n="about_s4">种语言（中/英）</div></div>
-            </div>
-          </div>
-          <div class="about-info-card">
-            <h4>👥 <span data-i18n="about_members_t">核心团队成员</span></h4>
-            <div class="team-member-row">
-              <div class="team-member"><div class="team-member-avatar">K</div><div class="team-member-info"><div class="team-member-name" data-i18n="tm1n">寇豆码（Kou）</div><div class="team-member-role" data-i18n="tm1r">工程师 · 前端开发</div></div></div>
-              <div class="team-member"><div class="team-member-avatar">A</div><div class="team-member-info"><div class="team-member-name" data-i18n="tm2n">Alice</div><div class="team-member-role" data-i18n="tm2r">产品经理 · 需求设计</div></div></div>
-              <div class="team-member"><div class="team-member-avatar">B</div><div class="team-member-info"><div class="team-member-name" data-i18n="tm3n">Bob</div><div class="team-member-role" data-i18n="tm3r">架构师 · 系统设计</div></div></div>
+              <div class="about-stat-item"><div class="about-stat-num">800+</div><div class="about-stat-desc" data-i18n="about_s1">份患者调研</div></div>
+              <div class="about-stat-item"><div class="about-stat-num">14+</div><div class="about-stat-desc" data-i18n="about_s2">位专病门诊</div></div>
+              <div class="about-stat-item"><div class="about-stat-num">∞</div><div class="about-stat-desc" data-i18n="about_s3">病友互助陪伴</div></div>
             </div>
           </div>
           <div class="about-info-card">
             <h4>📬 <span data-i18n="about_contact_t">联系我们</span></h4>
             <div class="contact-list">
-              <div class="contact-item"><div class="contact-icon">📧</div><span data-i18n="contact_e">behcet.alliance@example.com</span></div>
-              <div class="contact-item"><div class="contact-icon">💬</div><span data-i18n="contact_w">微信公众号：白塞病联盟</span></div>
-              <div class="contact-item"><div class="contact-icon">🐦</div><span data-i18n="contact_t">@BehcetAlliance</span></div>
+              <div class="contact-item"><div class="contact-icon">💬</div><span data-i18n="contact_w">微信公众号：白塞联盟</span></div>
+              <div class="contact-item"><div class="contact-icon">📧</div><span data-i18n="contact_e">contact@behcet.cn</span></div>
             </div>
+          </div>
+          <div class="about-info-card">
+            <h4>🤝 <span data-i18n="about_join_t">加入我们</span></h4>
+            <p style="font-size:0.9rem;color:var(--color-text-light);line-height:1.7;" data-i18n="about_join_d">欢迎白塞病患者、家属及关注白塞病的志愿者加入我们，共同为患者群体提供支持。</p>
           </div>
         </div>
       </div>
@@ -804,8 +750,8 @@
   <div class="container">
     <div class="footer-inner">
       <div class="footer-brand">
-        <h3 data-i18n="logoTitle">白塞病联盟</h3>
-        <p data-i18n="footerBrandDesc">由学生团队发起的公益性白塞病信息互助平台，致力于为患者提供权威知识、就医指引与温暖社区。</p>
+        <h3 data-i18n="logoTitle">白塞联盟</h3>
+        <p data-i18n="footerBrandDesc">白塞病患者及家属自发成立的互助组织，致力于为患者提供信息支持、就医指导与温暖社区。</p>
         <div class="disclaimer" data-i18n="footerDisclaimer">⚠ 本网站内容仅供科普参考，不替代专业医疗建议。如有健康问题请及时就医。</div>
       </div>
       <div class="footer-col">
@@ -830,7 +776,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© <span id="footerYear"></span> <span data-i18n="footerCopyText">白塞病联盟 Behcet's Disease Alliance · 公益项目，非商业用途 · 保留所有权利</span></p>
+      <p>© <span id="footerYear"></span> <span data-i18n="footerCopyText">白塞联盟 Behcet's Disease Alliance · 公益项目，非商业用途 · 保留所有权利</span></p>
     </div>
   </div>
 </footer>
@@ -862,20 +808,20 @@
 ============================================================ */
 const translations = {
   zh: {
-    logoTitle:"白塞病联盟", logoSub:"Behcet's Disease Alliance",
+    logoTitle:"白塞联盟", logoSub:"Behcet's Disease Alliance",
     navHome:"首页", navKnowledge:"知识库", navMedical:"就医导航", navCommunity:"温暖社区", navAbout:"关于我们", navProfile:"个人中心",
     modalStoryTitle:"故事标题",
     heroBadge:"白塞病患者互助平台",
     heroTitle:'白塞病，不再<span>孤独前行</span>',
-    heroDesc:"我们是一群学生与患者共同建立的互助联盟，致力于为白塞病患者提供权威医学知识、精准就医指引与温暖社区支持，让每一位患者都能在正确的路上前行。",
+    heroDesc:"白塞联盟是由白塞病患者及家属自发成立的互助组织，致力于为白塞病患者提供信息支持、就医指导与情感陪伴。我们相信，每一位患者都不应独自面对疾病的挑战。",
     heroBtn1:"了解白塞病 →", heroBtn2:"加入社区",
-    stat1:"份问卷调研", stat2:"位专家医生", stat3:"病友故事陪伴",
+    stat1:"份患者调研", stat2:"位专病门诊", stat3:"病友互助陪伴",
     valuesTitle:"我们能为您做什么", valuesSubtitle:"三大核心服务，全方位支持白塞病患者",
     val1Title:"权威知识库", val1Desc:"整合国际权威医学文献，涵盖白塞病的病因、症状、诊断标准、治疗方案及预后，让您掌握最准确的疾病信息。",
     val2Title:"就医导航", val2Desc:"精选全国各地权威医院及专科医生推荐，帮助患者找到最合适的医疗资源，少走弯路，准确就医。",
     val3Title:"温暖社区", val3Desc:"汇聚患者真实故事与心路历程，提供病友互助微信群，让每一位患者感受到被理解、被支持的温暖力量。",
     knowledgeSubtitle:"权威医学信息，帮助您全面了解白塞病",
-    ktab1:"疾病百科", ktab2:"常用药物", ktab3:"诊断标准", ktab4:"预后管理",
+    ktab1:"疾病百科", ktab2:"常用药物", ktab3:"诊断标准", ktab4:"预后管理", ktab5:"最新资讯",
     k_what_title:"什么是白塞病？",
     k_what_text:"白塞病（Behcet's Disease，BD），又称贝赫切特综合征，是一种原因不明的以血管炎为基础病理改变的慢性、复发性、多系统疾病。主要表现为反复发作的口腔溃疡、生殖器溃疡、眼部病变和皮肤损害，严重时可累及神经系统、消化系统和大血管。该病多见于\“丝绸之路\”沿线国家，在我国及东亚地区具有较高发病率，男女均可患病，好发于20-40岁青壮年人群。",
     k_cause_title:"病因：遗传与环境的共同作用",
@@ -940,45 +886,42 @@ const translations = {
     s2title:"与病共舞", s2loc:"上海 · 患者晓雯", s2time:"确诊3年，积极治疗中",
     s2excerpt:"被确诊时我哭了整整三天。但当我意识到哭泣解决不了任何问题后，我开始系统学习白塞病知识，找到适合自己的治疗方案，调整生活节奏。现在我依然热爱生活——跳舞、绘画，照样过得精彩。",
     s3title:"联盟让我不再孤单", s3loc:"成都 · 患者大伟", s3time:"加入联盟1年",
-    s3excerpt:"患病的最初两年，我一直以为只有自己是这样，网上搜到的信息残缺不全，家人也不理解。加入白塞病联盟后，遇见了许多同路人，大家互相分享经验、加油打气，那种不孤单的感觉真的很治愈。",
+    s3excerpt:"患病的最初两年，我一直以为只有自己是这样，网上搜到的信息残缺不全，家人也不理解。加入白塞联盟后，遇见了许多同路人，大家互相分享经验、加油打气，那种不孤单的感觉真的很治愈。",
     readMore:"阅读完整故事 →",
     wechat_title:"加入病友微信群",
-    wechat_desc:"扫描下方二维码，加入白塞病联盟病友互助群。这里有同路人、有医学科普、有情感支持——你不是一个人在战斗。",
+    wechat_desc:"扫描下方二维码，加入白塞联盟病友互助群。这里有同路人、有医学科普、有情感支持——你不是一个人在战斗。",
     qr_placeholder:"二维码占位图<br>（扫码加群）",
-    qr_label:"白塞病联盟病友群",
-    contact_email:"联系邮箱：behcet.alliance@example.com",
-    contact_wechat:"微信公众号：白塞病联盟",
-    aboutSubtitle:"由学生主导，为患者服务的公益性信息互助平台",
-    about_bg_t:"📋 项目背景",
-    about_bg_d:"白塞病是一种相对罕见却严重影响生活质量的自身免疫性疾病。然而，大多数患者在确诊前需要辗转多家医院，平均确诊时间长达数年。缺乏权威的中文科普资源、就医渠道不清晰、患者间缺少交流平台，是患者群体面临的主要困境。",
-    about_bg_d2:"基于对70余位白塞病患者的深度问卷调研，我们发现以上问题普遍存在。为此，一支由在校大学生组成的团队发起了\“白塞病联盟\”项目，立志用力所能及的方式改善这一现状。",
-    about_mission_t:"🎯 项目使命",
-    about_mission_d:"让每一位白塞病患者都能获得：",
-    mission1:"准确、权威的疾病认知",
-    mission2:"便捷的就医指引与专家资源",
-    mission3:"温暖的病友社群支持",
-    mission4:"持续更新的医学进展信息",
-    about_team_t:"👥 项目团队",
-    about_team_d:"我们是一支充满热情的在校学生团队，成员涵盖医学、设计、技术等多个专业，共同致力于推动白塞病患者信息获取的平等化与便利化。我们与白塞联盟合作，确保内容的专业性与准确性。",
-    about_support_t:"🤝 支持机构",
-    about_support_d:"本项目受到白塞联盟的指导与支持。白塞联盟致力于推动国内白塞病患者群体的组织化支持与医患沟通，是本项目最重要的合作伙伴。",
+    qr_label:"白塞联盟病友群",
+    contact_email:"联系邮箱：contact@behcet.cn",
+    contact_wechat:"微信公众号：白塞联盟",
+    aboutSubtitle:"信息共享、互助关爱",
+    about_intro_t:"📋 关于白塞联盟",
+    about_intro_d:"白塞联盟（Behcet's Disease Alliance）是由白塞病患者及家属自发成立的互助组织。联盟以「信息共享、互助关爱」为宗旨，致力于搭建患者与医疗资源之间的桥梁。",
+    about_mission_t:"🎯 我们的使命",
+    mission1:"汇聚全国白塞病专病门诊信息，帮助患者找到对口的医疗资源",
+    mission2:"传播科学、权威的白塞病知识，消除信息壁垒",
+    mission3:"为患者及家属提供情感支持与交流平台",
+    about_what_t:"🛠 我们做什么",
+    what1:"患者信息调研与报告发布",
+    what2:"专病门诊信息整理与持续更新",
+    what3:"科普内容制作与传播",
+    what4:"患者互助社区运营",
     about_disclaimer_t:"⚠️ 免责声明",
     about_disclaimer_d:"本网站所有内容仅供参考，不构成医疗建议。白塞病的诊断与治疗应在专业医生的指导下进行。如有任何医疗疑问，请及时就诊。",
-    about_stat_t:"项目数据",
-    about_s1:"份深度问卷调研", about_s2:"位专家医生收录", about_s3:"个核心功能模块", about_s4:"种语言（中/英）",
-    about_members_t:"核心团队成员",
-    tm1n:"寇豆码（Kou）", tm1r:"工程师 · 前端开发",
-    tm2n:"Alice", tm2r:"产品经理 · 需求设计",
-    tm3n:"Bob", tm3r:"架构师 · 系统设计",
+    about_stat_t:"联盟数据",
+    about_s1:"份患者调研", about_s2:"位专病门诊", about_s3:"病友互助陪伴",
     about_contact_t:"联系我们",
-    contact_e:"behcet.alliance@example.com",
-    contact_w:"微信公众号：白塞病联盟",
-    contact_t:"@BehcetAlliance",
-    footerBrandDesc:"由学生团队发起的公益性白塞病信息互助平台，致力于为患者提供权威知识、就医指引与温暖社区。",
+    contact_e:"contact@behcet.cn",
+    contact_w:"微信公众号：白塞联盟",
+    about_join_t:"加入我们",
+    about_join_d:"欢迎白塞病患者、家属及关注白塞病的志愿者加入我们，共同为患者群体提供支持。",
+    news_title:"最新资讯",
+    news_intro:"了解白塞病领域的最新动态、研究进展与联盟公告。",
+    footerBrandDesc:"白塞病患者及家属自发成立的互助组织，致力于为患者提供信息支持、就医指导与温暖社区。",
     footerDisclaimer:"⚠ 本网站内容仅供科普参考，不替代专业医疗建议。如有健康问题请及时就医。",
     footerNav:"快速导航", footerResources:"资源链接",
     footerR1:"白塞联盟官网", footerR2:"中华风湿病学会", footerR3:"国际白塞病研究组", footerR4:"病友交流群",
-    footerCopyText:"白塞病联盟 Behcet's Disease Alliance · 公益项目，非商业用途 · 保留所有权利",
+    footerCopyText:"白塞联盟 Behcet's Disease Alliance · 公益项目，非商业用途 · 保留所有权利",
     profileTitle:"个人中心", profileSubtitle:"管理您的收藏和订阅",
     profileBookmarksTitle:"❤️ 我的收藏", profileClearBookmarks:"清空收藏",
     profileNoBookmarks:"暂无收藏内容，浏览知识库和社区时点击 ❤ 即可收藏。",
@@ -1008,10 +951,10 @@ const translations = {
     story3_title:"联盟让我不再孤单 —— 大伟的故事",
     story3_body:`<p>我叫大伟，成都人，五年前被确诊为白塞病。</p>
 <p>患病最初的两年，我处于一种极度孤立的状态。网上关于白塞病的中文资料少得可怜，而且很多还是错误的。家人觉得我"没什么大病"，朋友不理解为什么我总是请假。每次口腔溃疡发作，我只能一个人硬撑。</p>
-<p>偶然间，我在微博上看到了"白塞病联盟"的账号，抱着试试看的心态加入了病友微信群。</p>
+<p>偶然间，我在微博上看到了"白塞联盟"的账号，抱着试试看的心态加入了病友微信群。</p>
 <p>加入的第一天，我问了一个困扰我很久的问题：服用激素期间能不能吃辣？没想到群里十几个人立刻回复，有医学背景的病友详细解释了原因，还有人分享了自己的饮食经验。</p>
 <p>从那以后，我在群里认识了来自全国各地的病友。我们互相分享就医经验、药物调整心得，互相安慰情绪低落的时刻。有一次我病情加重，情绪很差，群里的朋友们轮流发来鼓励，那一刻我真的感受到了巨大的温暖。</p>
-<p>白塞病联盟不只是一个信息平台，更是一个家。感谢这里让我不再孤单。</p>`
+<p>白塞联盟不只是一个信息平台，更是一个家。感谢这里让我不再孤单。</p>`
   },
 
   en: {
@@ -1020,15 +963,15 @@ const translations = {
     modalStoryTitle:"Story Title",
     heroBadge:"Patient Support Platform",
     heroTitle:'Facing Behcet\'s, <span>Never Alone</span>',
-    heroDesc:"We are a student-patient alliance dedicated to providing authoritative medical knowledge, accurate medical guidance, and warm community support for Behcet's disease patients.",
+    heroDesc:"The Behcet's Disease Alliance is a mutual aid organization spontaneously established by Behcet's disease patients and their families, dedicated to providing information support, medical guidance, and emotional companionship. We believe that no patient should face the challenges of illness alone.",
     heroBtn1:"Learn About BD \u2192", heroBtn2:"Join Community",
-    stat1:"Questionnaires", stat2:"Expert Doctors", stat3:"Patient Stories",
+    stat1:"Patient Surveys", stat2:"Specialty Clinics", stat3:"Peer Support",
     valuesTitle:"What We Can Do For You", valuesSubtitle:"Three core services to support Behcet's disease patients",
     val1Title:"Knowledge Base", val1Desc:"Integrating authoritative medical literature covering causes, symptoms, diagnostic criteria, treatments and prognosis of Behcet's disease.",
     val2Title:"Medical Guide", val2Desc:"Curated recommendations of top hospitals and specialist doctors to help patients find the most suitable medical resources.",
     val3Title:"Warm Community", val3Desc:"Real patient stories and peer support WeChat groups, so every patient feels understood and supported.",
     knowledgeSubtitle:"Authoritative medical information to help you understand Behcet's Disease",
-    ktab1:"Encyclopedia", ktab2:"Medications", ktab3:"Diagnosis", ktab4:"Prognosis",
+    ktab1:"Encyclopedia", ktab2:"Medications", ktab3:"Diagnosis", ktab4:"Prognosis", ktab5:"Latest News",
     k_what_title:"What is Behcet's Disease?",
     k_what_text:"Behcet's Disease (BD) is a rare, chronic, multisystem inflammatory disorder characterized by vasculitis. It primarily presents with recurrent oral ulcers, genital ulcers, eye lesions and skin manifestations. In severe cases, it can involve the nervous system, gastrointestinal tract and major blood vessels. The disease is more common along the 'Silk Road' countries and predominantly affects young adults aged 20-40.",
     k_cause_title:"Causes: Genetics and Environment",
@@ -1099,35 +1042,32 @@ const translations = {
     wechat_desc:"Scan the QR code below to join the Behcet's Disease Alliance patient support group. Here you'll find fellow patients, medical education, and emotional support \u2014 you are not fighting alone.",
     qr_placeholder:"QR Code Placeholder<br>(Scan to join)",
     qr_label:"Behcet's Disease Alliance Group",
-    contact_email:"Email: behcet.alliance@example.com",
+    contact_email:"Email: contact@behcet.cn",
     contact_wechat:"WeChat Official Account: Behcet's Alliance",
-    aboutSubtitle:"A student-led, patient-serving public welfare information platform",
-    about_bg_t:"\ud83d\udccb Project Background",
-    about_bg_d:"Behcet's Disease is a relatively rare but severely quality-of-life-impacting autoimmune disease. However, most patients need to visit multiple hospitals before diagnosis, with an average diagnosis time of several years. The lack of authoritative Chinese-language educational resources, unclear medical channels, and absence of patient communication platforms are the main challenges faced by the patient community.",
-    about_bg_d2:"Based on in-depth questionnaire surveys of over 70 Behcet's Disease patients, we found these problems to be widespread. Therefore, a team of university students initiated the 'Behcet's Disease Alliance' project, determined to improve this situation in whatever way we can.",
-    about_mission_t:"\ud83c\udfaf Project Mission",
-    about_mission_d:"Every Behcet's Disease patient deserves access to:",
-    mission1:"Accurate, authoritative disease knowledge",
-    mission2:"Convenient medical guidance and expert resources",
-    mission3:"Warm patient community support",
-    mission4:"Continuously updated medical progress information",
-    about_team_t:"\ud83d\udc65 Project Team",
-    about_team_d:"We are a passionate team of university students from diverse backgrounds including medicine, design, and technology, all dedicated to promoting equal and convenient access to information for Behcet's Disease patients. We collaborate with the Behcet's Alliance to ensure the professionalism and accuracy of our content.",
-    about_support_t:"\ud83e\udd1d Supporting Organization",
-    about_support_d:"This project is guided and supported by the Behcet's Alliance. The Behcet's Alliance is dedicated to promoting organized support and doctor-patient communication for the domestic Behcet's Disease patient community, and is our most important collaborative partner.",
+    aboutSubtitle:"Information Sharing, Mutual Care",
+    about_intro_t:"\ud83d\udccb About Behcet's Disease Alliance",
+    about_intro_d:"The Behcet's Disease Alliance is a mutual aid organization spontaneously established by Behcet's disease patients and their families. With the mission of 'information sharing and mutual care', the Alliance is dedicated to building a bridge between patients and medical resources.",
+    about_mission_t:"\ud83c\udfaf Our Mission",
+    mission1:"Aggregate nationwide specialty clinic information to help patients find appropriate medical resources",
+    mission2:"Disseminate scientific and authoritative Behcet's disease knowledge to eliminate information barriers",
+    mission3:"Provide emotional support and communication platforms for patients and their families",
+    about_what_t:"\ud83e\ude9a What We Do",
+    what1:"Patient information research and report publication",
+    what2:"Specialty clinic information compilation and continuous updates",
+    what3:"Science popularization content creation and dissemination",
+    what4:"Patient mutual aid community operation",
     about_disclaimer_t:"\u26a0\ufe0f Disclaimer",
     about_disclaimer_d:"All content on this website is for reference only and does not constitute medical advice. The diagnosis and treatment of Behcet's Disease should be conducted under the guidance of professional doctors. If you have any medical questions, please seek medical attention promptly.",
-    about_stat_t:"Project Statistics",
-    about_s1:"In-depth questionnaire surveys", about_s2:"Expert doctors listed", about_s3:"Core functional modules", about_s4:"Languages (CN/EN)",
-    about_members_t:"Core Team Members",
-    tm1n:"Kou", tm1r:"Engineer \u00b7 Front-end Development",
-    tm2n:"Alice", tm2r:"Product Manager \u00b7 Requirement Design",
-    tm3n:"Bob", tm3r:"Architect \u00b7 System Design",
+    about_stat_t:"Alliance Statistics",
+    about_s1:"Patient surveys", about_s2:"Specialty clinics", about_s3:"Peer support",
     about_contact_t:"Contact Us",
-    contact_e:"behcet.alliance@example.com",
+    contact_e:"contact@behcet.cn",
     contact_w:"WeChat Official Account: Behcet's Alliance",
-    contact_t:"@BehcetAlliance",
-    footerBrandDesc:"A public welfare information platform initiated by a student team, dedicated to providing authoritative knowledge, medical guidance, and warm community for Behcet's Disease patients.",
+    about_join_t:"Join Us",
+    about_join_d:"Behcet's disease patients, families, and volunteers are welcome to join us in providing support for the patient community.",
+    news_title:"Latest News",
+    news_intro:"Stay updated with the latest developments, research progress, and alliance announcements in the field of Behcet's Disease.",
+    footerBrandDesc:"A mutual aid organization spontaneously established by Behcet's disease patients and families, dedicated to providing information support, medical guidance, and warm community for patients.",
     footerDisclaimer:"\u26a0 This website content is for educational reference only and does not replace professional medical advice. If you have health concerns, please seek medical attention promptly.",
     footerNav:"Quick Navigation", footerResources:"Resource Links",
     footerR1:"Behcet's Alliance Official Site", footerR2:"Chinese Rheumatology Society", footerR3:"International Behcet's Research Group", footerR4:"Patient Community",
@@ -1256,6 +1196,7 @@ function updateLangButtons() {
 }
 
 /* Knowledge tab switching */
+var newsLoaded = false;
 function switchKTab(tabId) {
   document.querySelectorAll('.ktab').forEach(function(btn) {
     btn.classList.remove('active');
@@ -1274,32 +1215,140 @@ function switchKTab(tabId) {
   if (target) {
     target.classList.add('active');
   }
+  /* Load news data when switching to news tab for the first time */
+  if (tabId === 'news' && !newsLoaded) {
+    loadNews();
+    newsLoaded = true;
+  }
 }
 
-/* City filter for medical page */
-function filterCity(city) {
-  document.querySelectorAll('.city-btn').forEach(function(btn) {
-    btn.classList.remove('active');
-  });
-  /* Find the clicked button */
-  document.querySelectorAll('.city-btn').forEach(function(btn) {
-    var onclickAttr = btn.getAttribute('onclick');
-    if (onclickAttr && onclickAttr.indexOf("'" + city + "'") !== -1) {
-      btn.classList.add('active');
+/* News loading */
+async function loadNews() {
+  var container = document.getElementById('news-content');
+  if (!container) return;
+  container.innerHTML = '<p style="text-align:center;color:#999;">加载中...</p>';
+
+  try {
+    var res = await fetch('/api/news?limit=10');
+    var data = await res.json();
+    if (!data.news || data.news.length === 0) {
+      container.innerHTML = '<p style="text-align:center;color:#999;">暂无资讯</p>';
+      return;
     }
-  });
-  /* Show/hide doctor cards using CSS class */
-  document.querySelectorAll('.doctor-card').forEach(function(card) {
-    if (city === 'all') {
-      card.classList.add('visible');
-    } else {
-      if (card.getAttribute('data-city') === city) {
-        card.classList.add('visible');
-      } else {
-        card.classList.remove('visible');
-      }
+
+    container.innerHTML = data.news.map(function(n) {
+      return '<div class="news-item" style="padding:16px 0;border-bottom:1px solid #f0f0f0;cursor:pointer;" onclick="toggleNewsDetail(' + n.id + ')">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">' +
+          (n.is_pinned ? '<span style="color:#e74c3c;font-size:12px;">📌 置顶</span>' : '') +
+          '<h4 style="margin:0;font-size:16px;color:#1a1a2e;">' + (n.title || '') + '</h4>' +
+        '</div>' +
+        '<div style="font-size:13px;color:#999;margin-bottom:6px;">' + (n.published_at || n.created_at || '') + '</div>' +
+        '<p style="margin:0;font-size:14px;color:#666;line-height:1.6;">' + (n.summary || '') + '</p>' +
+        '<div id="news-detail-' + n.id + '" style="display:none;margin-top:12px;padding:12px;background:#f9f9f9;border-radius:8px;font-size:14px;color:#333;line-height:1.8;">' +
+          (n.content || '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  } catch(e) {
+    container.innerHTML = '<p style="text-align:center;color:#999;">加载失败，请稍后重试</p>';
+  }
+}
+
+function toggleNewsDetail(id) {
+  var el = document.getElementById('news-detail-' + id);
+  if (el) {
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  }
+}
+
+/* City filter for medical page - dynamic API-driven */
+var currentCity = 'all';
+var currentClinicFilter = false;
+
+async function loadCities() {
+  try {
+    var res = await fetch('/api/cities');
+    var data = await res.json();
+    var filterContainer = document.getElementById('cityFilter');
+    if (!filterContainer) return;
+
+    var html = '<button class="city-btn active" onclick="filterDoctors(\'all\', this)">全部城市</button>';
+    if (data.cities && data.cities.length > 0) {
+      data.cities.forEach(function(city) {
+        html += '<button class="city-btn" onclick="filterDoctors(\'' + city + '\', this)">' + city + '</button>';
+      });
     }
+    html += '<button class="city-btn specialty-btn" onclick="toggleSpecialtyClinic(this)" style="margin-left:12px;background:#e8f5e9;color:#2e7d32;border-color:#2e7d32;">专病门诊</button>';
+
+    filterContainer.innerHTML = html;
+  } catch(e) {
+    console.error('加载城市列表失败', e);
+  }
+}
+
+async function loadDoctors(city, specialtyOnly) {
+  city = city || 'all';
+  if (specialtyOnly === undefined) specialtyOnly = false;
+  var grid = document.getElementById('doctorGrid');
+  if (!grid) return;
+  grid.innerHTML = '<p style="text-align:center;color:#999;grid-column:1/-1;">加载中...</p>';
+
+  try {
+    var url = '/api/doctors/public?';
+    var params = [];
+    if (city && city !== 'all') params.push('city=' + encodeURIComponent(city));
+    if (specialtyOnly) params.push('is_specialty_clinic=1');
+    url += params.join('&');
+
+    var res = await fetch(url);
+    var data = await res.json();
+
+    if (!data.doctors || data.doctors.length === 0) {
+      grid.innerHTML = '<p style="text-align:center;color:#999;grid-column:1/-1;">暂无该条件的医生信息</p>';
+      return;
+    }
+
+    grid.innerHTML = data.doctors.map(function(d) {
+      return '<div class="doctor-card visible" style="position:relative;' + (d.is_specialty_clinic ? 'border-left:4px solid #2e7d32;' : '') + '">' +
+        (d.is_specialty_clinic ? '<span style="position:absolute;top:8px;right:8px;background:#2e7d32;color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;">专病门诊</span>' : '') +
+        '<div class="doctor-header"><div class="doctor-avatar">👨‍⚕️</div><div class="doctor-info">' +
+          '<h4>' + (d.name_zh || d.name || '') + (d.title ? ' · ' + d.title : '') + '</h4>' +
+          '<div class="doctor-title">' + (d.department || '') + '</div>' +
+        '</div></div>' +
+        '<div class="doctor-detail">' +
+          '<div class="doctor-detail-row"><span class="icon">🏥</span><span>' + (d.hospital || '') + '</span></div>' +
+          '<div class="doctor-detail-row"><span class="icon">📍</span><span>' + (d.city || '') + '</span></div>' +
+          '<div class="doctor-detail-row"><span class="icon">🎓</span><span>' + (d.specialty_zh || d.specialty || '') + '</span></div>' +
+          (d.schedule ? '<div class="doctor-detail-row"><span class="icon">🕐</span><span>出诊：' + d.schedule + '</span></div>' : '') +
+          (d.appointment_info ? '<div class="doctor-detail-row"><span class="icon">📋</span><span>预约：' + d.appointment_info + '</span></div>' : '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  } catch(e) {
+    grid.innerHTML = '<p style="text-align:center;color:#999;grid-column:1/-1;">加载失败，请稍后重试</p>';
+  }
+}
+
+function filterDoctors(city, btnEl) {
+  currentCity = city;
+  document.querySelectorAll('.city-btn:not(.specialty-btn)').forEach(function(b) {
+    b.classList.remove('active');
   });
+  if (btnEl) btnEl.classList.add('active');
+  loadDoctors(currentCity, currentClinicFilter);
+}
+
+function toggleSpecialtyClinic(btnEl) {
+  currentClinicFilter = !currentClinicFilter;
+  btnEl.classList.toggle('active');
+  if (currentClinicFilter) {
+    btnEl.style.background = '#2e7d32';
+    btnEl.style.color = '#fff';
+  } else {
+    btnEl.style.background = '#e8f5e9';
+    btnEl.style.color = '#2e7d32';
+  }
+  loadDoctors(currentCity, currentClinicFilter);
 }
 
 /* Story modal */
@@ -1531,6 +1580,9 @@ function applyPlaceholderTranslations() {
   } else {
     navigate('home');
   }
+  /* Load dynamic medical page data */
+  loadCities();
+  loadDoctors();
 })();
 </script>
 </body>
