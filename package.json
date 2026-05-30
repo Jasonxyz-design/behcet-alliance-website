@@ -1,0 +1,16 @@
+{
+  "name": "behcet-admin",
+  "version": "1.0.0",
+  "description": "白塞病联盟官网后台管理系统",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "better-sqlite3": "^11.6.0",
+    "jsonwebtoken": "^9.0.2",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5"
+  }
+}
